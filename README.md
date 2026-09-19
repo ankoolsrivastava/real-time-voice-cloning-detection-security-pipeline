@@ -84,6 +84,21 @@ BONAFIDE / SPOOF
 
 The CNN extracts local time-frequency features, the BiGRU models temporal dependencies, and the attention layer learns which parts of the analysis window contribute more strongly to the final prediction.
 
+## Frozen V2 checkpoint
+
+The trained V2 checkpoint is the learned neural-network state produced from the locked V1 dataset pipeline.
+
+```text
+Checkpoint: best_model.pt
+Model: voiceguard_v2_epoch8
+Parameters: 1,143,331
+Frozen spoof threshold: 0.25
+SHA-256:
+ad872bac0f754e554ede13507d86b2ed6396e3e4cbd7973935559c5c292d934b
+```
+
+The checkpoint does **not** contain the 17,511 source audio records. Raw audio remains intentionally outside GitHub because of its size and dataset-distribution considerations. With the checkpoint and supporting runtime artifacts, the frozen V2 inference/backend pipeline can run without downloading the full audio collection.
+
 ## Audio preprocessing
 
 | Parameter | Value |
@@ -140,7 +155,7 @@ The project uses a locked V1 dataset covering bonafide and spoofed speech for Hi
 - Speaker-aware separation checks
 - Dataset quality-control validation
 
-The protected test split is kept separate from development and integration work. Raw audio, generated speech collections, model checkpoints, and other large ML artifacts are intentionally excluded from the public repository.
+The protected test split is kept separate from development and integration work. Raw audio and generated speech collections are intentionally excluded from the public repository because they are large dataset artifacts. The trained model checkpoint and supporting non-audio runtime artifacts are separate from the raw audio and can be distributed where appropriate.
 
 ---
 
@@ -324,6 +339,26 @@ The Python environment and dependency versions used by the backend are documente
 
 ---
 
+# Reproducibility
+
+The repository is designed around three practical levels of reproducibility:
+
+### 1. Clone only
+
+A GitHub clone provides the ML source code, training/evaluation scripts, backend, frontend, tests, ML evidence contract, and final V2 handoff documentation. You can inspect the complete engineering pipeline and run tests that do not require unavailable audio/model artifacts.
+
+### 2. Clone + dataset
+
+With a compatible Hindi/Marathi dataset and the documented preprocessing/training pipeline, the training scripts can be used to train a **new model**. This does not reproduce the frozen V2 checkpoint unless the exact locked training data, split, environment, and configuration are available.
+
+### 3. Clone + frozen ML artifacts
+
+With the frozen `best_model.pt`, supporting prosody/runtime artifacts, and the documented handoff layout, the integrated backend can run the **frozen V2 inference pipeline** without the full 17,511-record audio collection.
+
+**The raw audio dataset is the intentionally excluded large artifact; the trained model and other non-audio runtime artifacts are separate from it.**
+
+---
+
 # Local setup
 
 ## Backend
@@ -357,7 +392,7 @@ cd backend
 ..\ml_env\Scripts\python.exe -m pytest
 ```
 
-The public repository does not include the locked audio datasets or frozen model artifacts, so full inference tests require the corresponding local ML handoff. The final V2 handoff package documents the required external artifact layout and verifies the frozen checkpoint hash.
+The raw audio datasets are not included. Tests that exercise the frozen model require the corresponding model/runtime artifacts. The final V2 handoff package documents the required artifact layout and verifies the frozen checkpoint hash.
 
 ---
 
