@@ -9,7 +9,7 @@
     "sample_rate_hz": 16000,
     "channels": 1,
     "window_samples": 160000,
-    "window_seconds": 10.0,
+    "window_seconds": 10,
     "class_mapping": {
       "0": "bonafide",
       "1": "spoof"
@@ -43,9 +43,14 @@
     "protected_test_required_at_runtime": false
   },
   "artifact_policy": {
-    "model_weights_committed_to_git": false,
+    "model_weights_committed_to_git": true,
     "audio_datasets_committed_to_git": false,
     "generated_outputs_committed_to_git": false,
-    "verification_script": "VERIFY_VOICEGUARD_FINAL_ML_HANDOFF_V2.ps1"
+    "verification_script": "VERIFY_VOICEGUARD_FINAL_ML_HANDOFF_V2.ps1",
+    "prosody_scorer_committed_to_git": true,
+    "public_model_paths": [
+      "models/best_model.pt",
+      "models/prosody_scorer_v1.pkl"
+    ]
   }
 }
