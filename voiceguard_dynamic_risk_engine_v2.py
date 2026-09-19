@@ -34,11 +34,13 @@ class RiskOutput:
     reasons: List[str] = field(default_factory=list)
 
 class VoiceGuardRiskEngine:
+    """Active V2 evidence fusion. Defaults match the frozen 83/17 configuration."""
+
     def __init__(
         self,
         threshold: float = 0.25,
-        primary_weight: float = 0.89,
-        prosody_weight: float = 0.11,
+        primary_weight: float = 0.83,
+        prosody_weight: float = 0.17,
         low_risk: float = 30.0,
         high_risk: float = 70.0,
         critical_risk: float = 90.0,
