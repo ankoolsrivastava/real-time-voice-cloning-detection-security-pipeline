@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import time
 
@@ -53,13 +53,13 @@ class V2ModelConnector(MLModelConnector):
                     "spoof_probability": float(result.spoof_probability),
                 },
                 "prosody_behavioral": {
-                    "available": True,
+                    "available": result.prosody_probability is not None,
                     "probability": (
-                        float(result.risk.prosody_contribution)
-                        if result.risk.prosody_contribution is not None
+                        float(result.prosody_probability)
+                        if result.prosody_probability is not None
                         else None
                     ),
-                    "reliability": float(result.risk.evidence_confidence),
+                    "reliability": float(result.prosody_reliability),
                 },
                 "speaker_consistency": {
                     "available": False,
@@ -82,12 +82,8 @@ class V2ModelConnector(MLModelConnector):
                 "risk_score": float(result.risk.risk_score),
                 "risk_level": result.risk.risk_level,
                 "risk_status": result.risk.status,
-                "primary_contribution": float(
-                    result.risk.primary_contribution
-                ),
-                "prosody_contribution": float(
-                    result.risk.prosody_contribution
-                ),
+                "primary_contribution": float(result.risk.primary_contribution),
+                "prosody_contribution": float(result.risk.prosody_contribution),
                 "adjusted_spoof_probability": float(
                     result.risk.adjusted_spoof_probability
                 ),
