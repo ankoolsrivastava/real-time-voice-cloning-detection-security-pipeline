@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass(frozen=True)
@@ -10,8 +10,8 @@ class MLModelOutput:
     model_id: str
     model_version: str
 
-    spoof_probability: float
-    bonafide_probability: float
+    spoof_probability: Optional[float]
+    bonafide_probability: Optional[float]
     confidence: float
 
     latency_ms: float
