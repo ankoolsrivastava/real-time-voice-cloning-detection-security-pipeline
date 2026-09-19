@@ -9,7 +9,7 @@ BACKEND_ROOT = Path(__file__).resolve().parents[1]
 ML_HANDOFF_ROOT = Path(
     os.getenv(
         "VOICEGUARD_ML_HANDOFF_ROOT",
-        r"D:\VOICEGUARD_ML_HANDOFF_V2"
+        r"D:\VoiceGaurd\ml_handoff"
     )
 ).resolve()
 
