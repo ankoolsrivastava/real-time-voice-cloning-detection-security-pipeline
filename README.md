@@ -124,9 +124,8 @@ The project uses a locked V1 dataset covering bonafide and spoofed speech for Hi
 
 | Dataset component | Samples |
 |---|---:|
-| Bonafide speech | 9,511 |
+| Bonafide speech (4,568 clean + 4,943 robustness) | 9,511 |
 | Clean synthetic spoof | 3,000 |
-| Real robustness speech | 4,943 |
 | Spoof robustness speech | 5,000 |
 | **Total** | **17,511** |
 
@@ -288,6 +287,7 @@ real-time-voice-cloning-detection-security-pipeline/
 │   └── package-lock.json
 ├── scripts/                  # Training, evaluation and ML utilities
 ├── 00_PROJECT_DOCS/          # Dataset/project reference material
+├── handoff/                  # Final V2 ML handoff + verifier
 ├── ML_BACKEND_HANDOFF.md     # ML/backend integration reference
 └── README.md
 ```
@@ -328,7 +328,7 @@ The Python environment and dependency versions used by the backend are documente
 
 ## Backend
 
-The backend expects the frozen ML artifacts to exist outside the repository. Set `VOICEGUARD_ML_HANDOFF_ROOT` to the local ML handoff directory before starting the API.
+The backend expects the frozen ML artifacts to exist outside the repository. By default it looks for a sibling `ml_handoff/` directory next to `backend/`. Set `VOICEGUARD_ML_HANDOFF_ROOT` when the artifacts live elsewhere. The expected layout and verifier are documented in `handoff/`.
 
 ```powershell
 cd backend
@@ -357,7 +357,7 @@ cd backend
 ..\ml_env\Scripts\python.exe -m pytest
 ```
 
-The public repository does not include the locked audio datasets or frozen model artifacts, so full inference tests require the corresponding local ML handoff.
+The public repository does not include the locked audio datasets or frozen model artifacts, so full inference tests require the corresponding local ML handoff. The final V2 handoff package documents the required external artifact layout and verifies the frozen checkpoint hash.
 
 ---
 
@@ -393,6 +393,18 @@ This is a **personal ML engineering and research-oriented prototype**, not a cer
 - Audio quality affects confidence rather than directly determining spoof status.
 - Broader external evaluation and calibration would be required for production deployment.
 - Reported metrics and latency measurements correspond to the documented project evaluation and hardware configurations.
+
+---
+
+# ML handoff
+
+The repository keeps large/private ML artifacts outside GitHub while retaining a reproducible integration boundary. The final V2 handoff package contains:
+
+- `VOICEGUARD_FINAL_ML_HANDOFF_V2_README.md` — artifact layout, integration steps, and frozen identifiers
+- `VOICEGUARD_FINAL_ML_HANDOFF_V2_INDEX.json` — machine-readable artifact manifest
+- `VERIFY_VOICEGUARD_FINAL_ML_HANDOFF_V2.ps1` — local prerequisite/hash verifier
+
+The handoff preserves the frozen V2 checkpoint SHA-256, prosody scorer configuration, runtime scripts, and ML evidence contract requirements without committing model weights or audio datasets.
 
 ---
 
