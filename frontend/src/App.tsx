@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const API = "http://127.0.0.1:8000/api";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000/api";
 
 type Result = {
   window_sequence?: number;
@@ -123,7 +123,7 @@ function App() {
     } catch {
       setConnected(false);
       setError(
-        "Backend unavailable. Start the VaaniX backend first.",
+        "Backend unavailable. Start the VanniX backend first.",
       );
     }
   }
@@ -185,7 +185,7 @@ function App() {
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to start VaaniX session.",
+          : "Unable to start VanniX session.",
       );
     }
   }
@@ -426,7 +426,7 @@ function App() {
       <header className="topbar">
         <div>
           <div className="brand">
-            VaaniX
+            VanniX
           </div>
 
           <div className="subtitle">
@@ -465,7 +465,7 @@ function App() {
             </h1>
 
             <p className="heroText">
-              VaaniX continuously evaluates
+              VanniX continuously evaluates
               voice integrity and converts
               detection evidence into an
               actionable security decision.
@@ -524,7 +524,7 @@ function App() {
       </span>
 
       <h2>
-        VaaniX Analysis Pipeline
+        VanniX Analysis Pipeline
       </h2>
     </div>
 
@@ -970,7 +970,7 @@ function App() {
         ? "Moderate voice-integrity risk detected. Verify the caller before proceeding."
         : level === "LOW"
           ? "Voice-integrity risk is currently low. Continue monitoring."
-          : "Security response updates from the VaaniX risk engine."}
+          : "Security response updates from the VanniX risk engine."}
 </p>
           </div>
 
@@ -1039,7 +1039,7 @@ function App() {
             {activities.length === 0 ? (
               <div className="emptyActivity">
                 Start a session to observe
-                VaaniX processing activity.
+                VanniX processing activity.
               </div>
             ) : (
               activities.map(
@@ -1100,7 +1100,7 @@ function App() {
       </main>
 
       <footer>
-        VaaniX • Voice Integrity Security •
+        VanniX • Voice Integrity Security •
         UpperSix
       </footer>
 
