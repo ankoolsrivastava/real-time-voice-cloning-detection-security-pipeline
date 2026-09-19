@@ -1074,7 +1074,7 @@ function App() {
 
           <div>
             <strong>
-              VAANIX INTEGRATION
+              VANNIX INTEGRATION
             </strong>
 
             <span>
