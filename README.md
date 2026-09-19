@@ -1,11 +1,29 @@
-# Real-Time Voice Anti-Spoofing & Impersonation Detection
+<p align="center">
+  <img src="./assets/project-banner.svg" alt="Real-Time Voice Anti-Spoofing project banner" width="900">
+</p>
 
-A personal ML + backend engineering project for detecting **bonafide vs. spoofed speech** from incoming audio and converting per-window evidence into a **0–100 impersonation risk score**.
+<h1 align="center">Real-Time Voice Anti-Spoofing &amp; Impersonation Detection</h1>
+
+<p align="center">
+  <strong>Personal ML + Backend Engineering Project</strong><br>
+  Near-live Hindi &amp; Marathi speech analysis using a frozen V2 detector, evidence fusion, temporal risk tracking, and FastAPI security controls.
+</p>
+
+<p align="center">
+  <a href="#machine-learning">ML</a> ·
+  <a href="#backend">Backend</a> ·
+  <a href="#performance">Performance</a> ·
+  <a href="#local-setup">Setup</a>
+</p>
+
+
+A personal ML + backend engineering project for detecting **bonafide vs. spoofed speech** from incoming audio and converting per-window evidence into a **0–100 impersonation risk score**. The public repository contains the engineering source, tests, documentation, and the frozen non-audio ML artifacts required to understand the final inference boundary.
 
 The system is focused on **Hindi and Marathi speech** and combines a custom PyTorch model with prosody evidence, audio-quality confidence, temporal risk tracking, and backend security decisions.
 
 > **Project type:** Personal ML + Backend Engineering Project  
-> **Status:** Working integrated prototype
+> **Status:** Working integrated prototype  
+> **Public artifacts:** Frozen V2 checkpoint + final prosody scorer
 
 ---
 
@@ -97,7 +115,7 @@ SHA-256:
 ad872bac0f754e554ede13507d86b2ed6396e3e4cbd7973935559c5c292d934b
 ```
 
-The checkpoint does **not** contain the 17,511 source audio records. Raw audio remains intentionally outside GitHub because of its size and dataset-distribution considerations. With the checkpoint and supporting runtime artifacts, the frozen V2 inference/backend pipeline can run without downloading the full audio collection.
+The checkpoint does **not** contain the 17,511 source audio records. Raw audio remains intentionally outside GitHub because of its size and dataset-distribution considerations. The frozen checkpoint is intentionally published in `models/best_model.pt`, alongside the final prosody scorer in `models/prosody_scorer_v1.pkl`.
 
 ## Audio preprocessing
 
@@ -341,7 +359,7 @@ The Python environment and dependency versions used by the backend are documente
 
 # Reproducibility
 
-The repository is designed around three practical levels of reproducibility:
+The repository is designed around three practical levels of reproducibility. The final frozen model artifacts are intentionally included in `models/`, while raw audio, datasets, local environments, caches, and external handoff/runtime directories remain excluded.
 
 ### 1. Clone only
 
@@ -353,9 +371,14 @@ With a compatible Hindi/Marathi dataset and the documented preprocessing/trainin
 
 ### 3. Clone + frozen ML artifacts
 
-With the frozen `best_model.pt`, supporting prosody/runtime artifacts, and the documented handoff layout, the integrated backend can run the **frozen V2 inference pipeline** without the full 17,511-record audio collection.
+The repository already includes:
 
-**The raw audio dataset is the intentionally excluded large artifact; the trained model and other non-audio runtime artifacts are separate from it.**
+- `models/best_model.pt` — frozen V2 neural-network checkpoint
+- `models/prosody_scorer_v1.pkl` — final secondary prosody scorer
+
+These artifacts allow the frozen V2 inference/evidence layer to be inspected and integrated without the full 17,511-record audio collection. The backend's default deployment layout still supports an external `ml_handoff/` directory when artifacts are provisioned outside the repository.
+
+**The raw audio dataset is the intentionally excluded large artifact; the final non-audio model artifacts are intentionally public.**
 
 ---
 
@@ -363,7 +386,7 @@ With the frozen `best_model.pt`, supporting prosody/runtime artifacts, and the d
 
 ## Backend
 
-The backend expects the frozen ML artifacts to exist outside the repository. By default it looks for a sibling `ml_handoff/` directory next to `backend/`. Set `VOICEGUARD_ML_HANDOFF_ROOT` when the artifacts live elsewhere. The expected layout and verifier are documented in `handoff/`.
+The backend supports an external ML handoff layout for deployment. By default it looks for a sibling `ml_handoff/` directory next to `backend/`; set `VOICEGUARD_ML_HANDOFF_ROOT` when artifacts are provisioned elsewhere. The public `models/` directory contains the frozen V2 checkpoint and prosody scorer for repository-level inspection/distribution, while `handoff/` documents the external runtime layout and verifier.
 
 ```powershell
 cd backend
@@ -433,13 +456,13 @@ This is a **personal ML engineering and research-oriented prototype**, not a cer
 
 # ML handoff
 
-The repository keeps large/private ML artifacts outside GitHub while retaining a reproducible integration boundary. The final V2 handoff package contains:
+The repository keeps large/private **audio and dataset artifacts** outside GitHub while retaining a reproducible integration boundary. The final V2 handoff package contains:
 
 - `VOICEGUARD_FINAL_ML_HANDOFF_V2_README.md` — artifact layout, integration steps, and frozen identifiers
 - `VOICEGUARD_FINAL_ML_HANDOFF_V2_INDEX.json` — machine-readable artifact manifest
 - `VERIFY_VOICEGUARD_FINAL_ML_HANDOFF_V2.ps1` — local prerequisite/hash verifier
 
-The handoff preserves the frozen V2 checkpoint SHA-256, prosody scorer configuration, runtime scripts, and ML evidence contract requirements without committing model weights or audio datasets.
+The handoff preserves the frozen V2 checkpoint SHA-256, prosody scorer configuration, runtime scripts, and ML evidence contract requirements. The frozen checkpoint and prosody scorer are intentionally published under `models/`; raw audio, datasets, and external runtime bundles remain excluded.
 
 ---
 
