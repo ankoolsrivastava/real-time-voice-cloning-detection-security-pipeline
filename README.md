@@ -1,112 +1,70 @@
 # Real-Time Voice Anti-Spoofing & Impersonation Detection
 
-A real-time / near-live machine learning and backend system for detecting **bonafide vs. spoofed speech** and converting audio evidence into an operational **0–100 impersonation risk score**.
+A personal ML + backend engineering project for detecting **bonafide vs. spoofed speech** from incoming audio and converting per-window evidence into a **0–100 impersonation risk score**.
 
-The system is designed for **Hindi and Marathi speech** and combines a custom PyTorch anti-spoofing model, prosodic evidence, audio-quality confidence, temporal risk accumulation, and security-policy actions.
+The system is focused on **Hindi and Marathi speech** and combines a custom PyTorch model with prosody evidence, audio-quality confidence, temporal risk tracking, and backend security decisions.
 
 > **Project type:** Personal ML + Backend Engineering Project  
-> **Status:** Working integrated prototype  
-> **Primary task:** Speech-level spoof / synthetic-voice detection
+> **Status:** Working integrated prototype
 
 ---
 
-## What This Project Does
+## Overview
 
-The system processes incoming speech in fixed streaming windows and evaluates whether the audio is consistent with **bonafide speech or spoofed speech**.
-
-It is designed around the following pipeline:
+The system is designed for near-live speech analysis. Incoming audio is split into fixed analysis windows, converted to Log-Mel features, passed through a custom CNN + BiGRU + temporal-attention model, and then combined with secondary evidence before the backend applies a security policy.
 
 ```text
-Microphone / Audio Stream
-        ↓
-Chunk Buffering
-        ↓
-Window Management
-        ↓
-16 kHz Mono Audio
-        ↓
-Log-Mel Spectrogram
-        ↓
-Custom CNN + BiGRU + Temporal Attention Model
-        ↓
-Primary Spoof Probability
-        ↓
-Prosody Evidence + Audio Quality
-        ↓
-Evidence / Risk Computation
-        ↓
-Temporal Risk Accumulation
-        ↓
-0–100 Impersonation Risk Score
-        ↓
-Security Policy
-        ↓
-REST / WebSocket Response
+Audio Stream → Chunk Buffer → 10s Window → Log-Mel Features
+      ↓
+Custom CNN → BiGRU → Temporal Attention → Spoof Probability
+      ↓
+Prosody + Audio Quality → Risk Calculation → Temporal Tracking
+      ↓
+0–100 Risk Score → Security Policy → REST / WebSocket Response
 ```
 
-The backend is responsible for streaming, buffering, sessions, transport, telemetry, and security actions while the ML runtime keeps the model preprocessing and inference contract consistent.
-
----
-
-## Core Capabilities
-
-- Real-time / near-live audio processing
-- Bonafide vs. spoof classification
-- Hindi + Marathi speech support
-- Synthetic / TTS-style spoof detection
-- Robustness evaluation under transformed and reverberant audio conditions
+### Main features
+- Bonafide vs. spoof speech classification
+- Hindi + Marathi speech
+- Synthetic/TTS-style spoof detection
+- Robustness evaluation with transformed and reverberant audio
 - Fixed 10-second inference windows
-- CNN + BiGRU + temporal attention architecture
-- Prosody-based secondary evidence
+- Custom CNN + BiGRU + temporal attention model
+- Secondary prosody evidence
 - Audio-quality confidence estimation
-- Temporal risk accumulation across multiple windows
-- 0–100 impersonation risk scoring
-- REST API
-- WebSocket streaming
-- Session management
-- Structured telemetry
-- Security-policy decisions
-- ML ↔ backend integration contract
-- Automated backend tests
+- Temporal risk tracking across windows
+- 0–100 impersonation risk score
+- FastAPI backend with REST and WebSocket interfaces
+- Session management, telemetry, and automated tests
 
 ---
 
-# Machine Learning Pipeline
+# Machine Learning
 
 ## Custom Model
 
-The primary detector is a **custom PyTorch model implemented in this repository** rather than a pretrained end-to-end voice-classification model.
+The primary detector is a **custom PyTorch model implemented in this project**. It uses a Log-Mel spectrogram as input and learns both local time-frequency patterns and longer temporal patterns in speech.
 
 ### Architecture
 
 ```text
 64-bin Log-Mel Spectrogram
-            ↓
-        CNN Block
-       1 → 32 channels
-            ↓
-        CNN Block
-      32 → 64 channels
-            ↓
-        CNN Block
-     64 → 128 channels
-            ↓
-        CNN Block
-    128 → 128 channels
-            ↓
- Adaptive Frequency Pooling
-            ↓
-      2-Layer BiGRU
-       Hidden Size 128
-            ↓
-    Temporal Attention
-            ↓
-      Classification Head
-            ↓
-     BONAFIDE / SPOOF
+          ↓
+CNN: 1 → 32 → 64 → 128 → 128
+          ↓
+Adaptive Frequency Pooling
+          ↓
+2-Layer Bidirectional GRU
+Hidden Size: 128
+          ↓
+Temporal Attention
+          ↓
+Classifier: 256 → 128 → 2
+          ↓
+BONAFIDE / SPOOF
 ```
 
-### Model Details
+### Model parameters
 
 | Component | Configuration |
 |---|---|
@@ -114,20 +72,19 @@ The primary detector is a **custom PyTorch model implemented in this repository*
 | Task | Binary classification |
 | Classes | BONAFIDE / SPOOF |
 | CNN channels | 1 → 32 → 64 → 128 → 128 |
-| Recurrent layer | 2-layer bidirectional GRU |
+| CNN kernel | 3 × 3 |
+| CNN activation | GELU |
+| Frequency pooling | Adaptive Average Pooling |
+| Recurrent layer | 2-layer Bidirectional GRU |
 | GRU hidden size | 128 |
-| BiGRU output size | 256 |
+| BiGRU output | 256 features |
 | Attention | Learned temporal attention |
 | Classifier | 256 → 128 → 2 |
-| Parameters | **1,143,331** |
+| Total parameters | **1,143,331** |
 
-The CNN learns local time-frequency patterns from the spectrogram, the BiGRU models temporal dependencies, and the attention layer learns which temporal regions contribute most strongly to the final decision.
+The CNN extracts local time-frequency features, the BiGRU models temporal dependencies, and the attention layer learns which parts of the analysis window contribute more strongly to the final prediction.
 
----
-
-## Audio Preprocessing Contract
-
-The same preprocessing contract is used by the frozen inference runtime and backend integration:
+## Audio preprocessing
 
 | Parameter | Value |
 |---|---:|
@@ -135,25 +92,18 @@ The same preprocessing contract is used by the frozen inference runtime and back
 | Channels | **Mono** |
 | Data type | **Float32** |
 | Normalization | Peak normalization |
-| Maximum window | **10 seconds** |
-| Samples / window | **160,000** |
+| Window duration | **10 seconds** |
+| Samples per window | **160,000** |
 | FFT size | **400** |
 | Hop length | **160** |
 | Window length | **400** |
 | Mel bins | **64** |
-| Minimum frequency | **20 Hz** |
-| Maximum frequency | **8,000 Hz** |
-| Spectral representation | Log-Mel |
+| Frequency range | **20–8,000 Hz** |
+| Spectrogram | Log-Mel |
 
-The backend constructs the exact inference window before passing the waveform to the ML runtime.
+## Training configuration
 
----
-
-## Training Configuration
-
-The model training pipeline is implemented in Python/PyTorch and reads from the locked master dataset rather than generating placeholder training data.
-
-| Configuration | Value |
+| Parameter | Value |
 |---|---:|
 | Batch size | 4 |
 | Optimizer | AdamW |
@@ -161,20 +111,18 @@ The model training pipeline is implemented in Python/PyTorch and reads from the 
 | Weight decay | 1e-4 |
 | Maximum epochs | 30 |
 | Early stopping patience | 7 |
-| Random seed | 42 |
 | Loss | Cross-Entropy |
+| Random seed | 42 |
 
-The training code also validates the dataset before training and refuses to proceed when both required classes are not available.
+The training pipeline validates the manifest before training and requires both bonafide and spoof classes. It does not create dummy labels or placeholder training samples.
 
 ---
 
 # Dataset
 
-The project uses a **locked internal V1 dataset** covering bonafide and spoofed speech for Hindi and Marathi.
+The project uses a locked V1 dataset covering bonafide and spoofed speech for Hindi and Marathi.
 
-### Dataset Composition
-
-| Component | Samples |
+| Dataset component | Samples |
 |---|---:|
 | Bonafide speech | 9,511 |
 | Clean synthetic spoof | 3,000 |
@@ -182,8 +130,7 @@ The project uses a **locked internal V1 dataset** covering bonafide and spoofed 
 | Spoof robustness speech | 5,000 |
 | **Total** | **17,511** |
 
-### Dataset Coverage
-
+### Dataset coverage
 - **9,657 Hindi samples**
 - **7,854 Marathi samples**
 - **13,214 training samples**
@@ -192,17 +139,15 @@ The project uses a **locked internal V1 dataset** covering bonafide and spoofed 
 - 4,568 bonafide clips from 424 speakers
 - 16 kHz mono WAV source data
 - Speaker-aware separation checks
-- Quality-control validation across the locked dataset
+- Dataset quality-control validation
 
-The protected test split is kept separate from development and integration work.
-
-Raw audio, generated speech collections, and protected evaluation data are **not stored in the public repository**.
+The protected test split is kept separate from development and integration work. Raw audio, generated speech collections, model checkpoints, and other large ML artifacts are intentionally excluded from the public repository.
 
 ---
 
-# Model Evaluation
+# Evaluation
 
-The frozen V2 model was evaluated against the locked evaluation setup.
+The frozen V2 model was evaluated using the documented project evaluation setup.
 
 | Evaluation | Metric | Result |
 |---|---|---:|
@@ -214,314 +159,225 @@ The frozen V2 model was evaluated against the locked evaluation setup.
 | Dual-RIR | Accuracy @ 0.25 | **92.90%** |
 | Dual-RIR | F1 @ 0.25 | **93.00%** |
 
-### Frozen Inference Threshold
+### Frozen threshold
 
 **Spoof threshold: 0.25**
 
-The threshold is part of the frozen V2 inference configuration. It is not presented as a universal industry threshold; operational behavior depends on the evaluation and deployment conditions.
+The threshold is part of the frozen V2 inference configuration and is a project-level operating point rather than a universal threshold for every deployment environment.
 
 ---
 
-## Inference Benchmark
+# Evidence and Risk
 
-Measured on an **NVIDIA RTX 3050** using the documented benchmark configuration:
-
-| Metric | Measurement |
-|---|---:|
-| Mean end-to-end latency | **~13.06 ms** |
-| Model-only latency | **~3.46 ms** |
-| Peak VRAM | **~61.89 MB** |
-
-These measurements describe the tested configuration and hardware rather than a universal production performance guarantee.
-
----
-
-# Evidence & Risk Layer
-
-The primary detector is combined with secondary speech evidence.
-
-### Evidence Fusion
+The primary acoustic detector is supplemented with secondary evidence.
 
 ```text
-Primary V2 Acoustic/Spectral Evidence  → 83%
-Prosody Evidence                       → 17%
-Audio Quality                          → Confidence / Reliability
+Primary V2 detector  → 83%
+Prosody evidence     → 17%
+Audio quality        → confidence / reliability
 ```
 
-Audio quality is intentionally treated as a **confidence signal**, not as independent spoof evidence.
+Audio quality is **not treated as spoof evidence**. Poor-quality audio reduces confidence in the available evidence instead of automatically being classified as spoof.
 
-Speaker-consistency scoring was evaluated separately but is **not active in the frozen V2 pipeline** because its earlier validation performance did not justify using it as production evidence without a trusted reference.
+Speaker consistency was evaluated separately but is **not active in the frozen V2 pipeline** because its earlier validation did not justify using it as production evidence without a trusted speaker reference.
 
----
+## Risk score
 
-## Dynamic Risk Engine
+The evidence is converted into a normalized **0–100 impersonation risk score**.
 
-The system converts the resulting evidence into a normalized **0–100 risk score**.
-
-| Score | Risk Level |
+| Score | Level |
 |---:|---|
 | 0–24 | LOW |
 | 25–49 | MEDIUM |
 | 50–74 | HIGH |
 | 75–100 | CRITICAL |
 
-The backend then applies a separate security policy to the risk result.
-
-### Example Security Actions
-
-| Risk condition | Backend action |
+| Risk condition | Example action |
 |---|---|
-| Low risk | ALLOW |
-| Medium risk | VERIFY |
-| High risk | MFA / callback / escalation |
-| Critical risk | BLOCK / escalation |
+| LOW | Allow |
+| MEDIUM | Verify |
+| HIGH | MFA / callback / escalation |
+| CRITICAL | Block / escalation |
 | Low-confidence evidence | Secondary verification |
 
-The policy layer deliberately separates **ML evidence** from **application security decisions**.
+The ML evidence layer and application security policy are kept separate.
 
 ---
 
-# Real-Time Backend
+# Backend
 
-The backend is implemented with FastAPI and provides both REST and WebSocket interfaces.
+The backend is built with **FastAPI** and supports both REST and WebSocket communication.
 
-### Streaming Flow
+### Streaming flow
 
 ```text
-Audio Chunk
-    ↓
-Pydantic Validation
-    ↓
-Chunk Buffer
-    ↓
-Window Manager
-    ↓
-Exact 10-second Window
-    ↓
-ML Runtime
-    ↓
-Detection Result
-    ↓
-Temporal Accumulator
-    ↓
-Security Policy
-    ↓
-API / WebSocket Response
+Audio Chunk → Input Validation → Chunk Buffer → Window Manager
+      ↓
+10-second Window → ML Runtime → Detection Result
+      ↓
+Temporal Risk Tracking → Security Policy → API / WebSocket
 ```
 
-### Backend Responsibilities
-
+### Backend responsibilities
 - Audio chunk validation
-- Sequence and timestamp handling
-- Chunk buffering
-- Exact-window construction
+- Sequence numbers and timestamps
+- Chunk buffering and fixed-window construction
 - Session lifecycle management
 - Persistent ML runtime
-- Model connector abstraction
-- Evidence serialization
+- ML connector layer
+- Evidence/result serialization
 - Temporal risk accumulation
-- Risk trend tracking
-- Security-policy evaluation
 - REST endpoints
 - WebSocket streaming
-- Telemetry
-- Error handling
-- Backend tests
+- Transport telemetry
+- Security-policy decisions
+- Error handling and tests
 
-The ML runtime loads the frozen model and supporting artifacts once per backend process and reuses them for subsequent inference requests.
+The ML runtime loads the frozen model and supporting components once per backend process and reuses them for inference.
 
 ---
 
-# API Surface
+# Performance
 
-The backend exposes endpoints for:
+Measured on an **NVIDIA RTX 3050** using the documented benchmark configuration:
 
+| Metric | Result |
+|---|---:|
+| Mean end-to-end latency | **~13.06 ms** |
+| Model-only latency | **~3.46 ms** |
+| Peak VRAM | **~61.89 MB** |
+
+These measurements apply to the tested hardware and configuration and are not a universal production performance guarantee.
+
+---
+
+# API
+
+The backend provides endpoints for:
 - Health checks
 - Model information
-- Integration contract
-- Session creation
-- Session inspection
+- ML/backend integration information
+- Session creation and inspection
 - Audio chunk submission
-- Session reset
-- Session deletion
-- WebSocket live-stream inference
-
-The integration contract exposes the expected sample rate, chunk/window sizes, model version, transport paths, and enabled capabilities.
+- Session reset/deletion
+- WebSocket streaming inference
 
 ---
 
-# Repository Structure
+# Repository structure
 
 ```text
 real-time-voice-cloning-detection-security-pipeline/
-│
 ├── backend/
 │   ├── app/
-│   │   ├── api/              # REST + WebSocket endpoints
-│   │   ├── audio/            # Chunking, buffering, windows
-│   │   ├── core/             # Backend core modules
-│   │   ├── ml/
-│   │   │   ├── connectors/   # ML model integration
-│   │   │   ├── fusion.py     # Evidence fusion
-│   │   │   ├── manager.py    # Model management
-│   │   │   └── runtime.py    # Persistent ML runtime
+│   │   ├── api/              # REST + WebSocket
+│   │   ├── audio/            # Chunking and windows
+│   │   ├── core/             # Backend core
+│   │   ├── ml/               # Model integration and evidence
 │   │   ├── security/         # Security policy
 │   │   ├── services/         # Detection services
-│   │   ├── sessions/         # Streaming sessions
-│   │   ├── temporal/         # Risk accumulation
+│   │   ├── sessions/         # Session management
+│   │   ├── temporal/         # Risk tracking
 │   │   └── transport/        # Telemetry
-│   │
-│   ├── tests/                # Backend tests
+│   ├── tests/
 │   └── requirements.txt
-│
 ├── frontend/
 │   ├── src/
 │   ├── public/
 │   ├── package.json
 │   └── package-lock.json
-│
-├── scripts/                  # ML training, evaluation and inference
-│
-├── 00_PROJECT_DOCS/          # Dataset and project reference material
-├── handoff/                  # Integration verification utilities
-│
+├── scripts/                  # Training, evaluation and ML utilities
+├── 00_PROJECT_DOCS/          # Dataset/project reference material
+├── handoff/                  # ML/backend handoff utilities
 ├── AGENTS.md                 # Project engineering conventions
-├── ML_BACKEND_HANDOFF.md     # ML ↔ backend integration contract
+├── ML_BACKEND_HANDOFF.md     # ML/backend integration reference
 └── README.md
 ```
 
 ---
 
-# Technology Stack
+# Tech stack
 
-## Machine Learning
-
-The backend environment is pinned through `backend/requirements.txt`.
-
-Core ML/audio dependencies include:
-
+### Machine Learning / Audio
 - Python
-- PyTorch **2.11.0 + CUDA 12.8**
+- PyTorch
 - TorchAudio
-- TorchVision
+- Librosa
 - NumPy
 - SciPy
-- Librosa
 - Scikit-learn
 - Pandas
 - SoundFile
 - SoundDevice
-- SoXR
-- Joblib
-- Matplotlib
 
-## Backend
-
+### Backend
 - FastAPI
 - Uvicorn
 - Pydantic
 - WebSockets
-- Python-dotenv
-- PyYAML
-- Requests
 - Pytest
 
-## Frontend
-
-- React 19
+### Frontend
+- React
 - TypeScript
 - Vite
-- ESLint
 
-The backend requirements file contains the pinned Python environment dependencies used by the project, including the supporting scientific-computing and runtime packages required by the ML and API layers.
-
----
-
-# Integration Reference
-
-The repository includes an ML/backend handoff layer for integrating the detector into another Python backend.
-
-The integration material documents the expected:
-
-- Audio input format
-- Sample rate
-- Window size
-- Model version
-- Model output
-- Spoof probability
-- Prosody evidence
-- Quality/confidence information
-- Risk score
-- Risk level
-- Runtime dependencies
-- ML artifact locations
-- Backend ↔ ML interface assumptions
-
-The **ML ↔ backend handoff can therefore be used as a direct integration reference** when connecting the inference pipeline to another Python service.
+The Python environment and dependency versions used by the backend are documented in `backend/requirements.txt`.
 
 ---
 
-# Local Setup
+# Local setup
 
 ## Backend
 
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+NaN
+NaN
+NaN
+NaN
+NaN
 
-The ML runtime requires the corresponding local frozen model and supporting evidence artifacts. These artifacts are intentionally excluded from the public repository.
+The ML runtime requires the corresponding local model and supporting artifacts. These files are intentionally not included in the public repository.
 
 ## Frontend
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+NaN
+NaN
+NaN
+NaN
+NaN
 
 ---
 
 # Testing
 
-Backend tests cover the main application layers, including:
+Backend tests cover API behavior, audio buffering/window construction, ML connectors, and core integration.
 
-- API health and session behavior
-- Audio chunk buffering
-- Exact 10-second window construction
-- ML connector registration
-- Model management
-- Evidence-fusion behavior
-
-Run backend tests with:
-
-```bash
-cd backend
-pytest
-```
+NaN
+NaN
+NaN
+NaN
 
 ---
 
-# Project Engineering Principles
+# Engineering notes
 
-The implementation keeps several concerns deliberately separated:
+The project separates the main responsibilities into independent layers:
 
 ```text
-Audio Transport
-      ↓
+Audio / Transport
+       ↓
 Streaming / Sessions
-      ↓
+       ↓
 ML Runtime
-      ↓
+       ↓
 Evidence
-      ↓
+       ↓
 Temporal Risk
-      ↓
+       ↓
 Security Policy
 ```
 
-This separation makes the inference contract explicit and allows the ML pipeline to be integrated without coupling model internals to transport or application-security logic.
+`ML_BACKEND_HANDOFF.md` contains the detailed ML ↔ backend integration contract and can be used when connecting the inference pipeline to another Python backend.
 
 ---
 
@@ -531,10 +387,10 @@ This is a **personal ML engineering and research-oriented prototype**, not a cer
 
 - Spoof detection does not establish speaker identity.
 - Performance can vary across microphones, codecs, channels, environments, and unseen synthesis methods.
-- Prosody is a secondary signal rather than the primary detector.
-- Audio quality affects confidence but is not itself treated as spoof evidence.
-- Production deployment would require broader external evaluation, calibration, monitoring, adversarial testing, privacy review, and security hardening.
-- The reported benchmark results correspond to the documented evaluation and hardware configurations.
+- Prosody is a secondary signal.
+- Audio quality affects confidence rather than directly determining spoof status.
+- Broader external evaluation and calibration would be required for production deployment.
+- Reported metrics and latency measurements correspond to the documented project evaluation and hardware configurations.
 
 ---
 
