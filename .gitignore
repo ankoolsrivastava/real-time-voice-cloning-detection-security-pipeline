@@ -93,7 +93,6 @@ VOICEGUARD_ML_HANDOFF/
 *.pkl
 
 
-=======
 # Intentionally published frozen production artifacts
 !models/best_model.pt
 !models/prosody_scorer_v1.pkl
