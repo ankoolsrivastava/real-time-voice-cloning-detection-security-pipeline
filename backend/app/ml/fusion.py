@@ -1,15 +1,15 @@
 ﻿from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from app.ml.connectors.base import MLModelOutput
 
 
 @dataclass(frozen=True)
 class FusedMLResult:
-    spoof_probability: float
-    bonafide_probability: float
+    spoof_probability: Optional[float]
+    bonafide_probability: Optional[float]
     confidence: float
     models_used: int
     successful_models: int
@@ -27,8 +27,8 @@ class MultiModelFusion:
 
         if not outputs:
             return FusedMLResult(
-                spoof_probability=0.5,
-                bonafide_probability=0.5,
+                spoof_probability=None,
+                bonafide_probability=None,
                 confidence=0.0,
                 models_used=0,
                 successful_models=0,
@@ -45,8 +45,8 @@ class MultiModelFusion:
 
         if not valid:
             return FusedMLResult(
-                spoof_probability=0.5,
-                bonafide_probability=0.5,
+                spoof_probability=None,
+                bonafide_probability=None,
                 confidence=0.0,
                 models_used=len(outputs),
                 successful_models=0,
