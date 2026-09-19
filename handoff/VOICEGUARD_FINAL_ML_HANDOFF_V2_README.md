@@ -2,7 +2,7 @@
 
 This package defines the external ML artifact layout required by the FastAPI backend.
 
-The repository intentionally does **not** commit the frozen checkpoint, prosody pickle, audio datasets, or generated ML outputs. Those artifacts stay in a local handoff directory and are verified before the backend starts.
+The repository intentionally excludes **audio datasets, generated outputs, and external runtime bundles**. The frozen checkpoint and final prosody scorer are intentionally published under `models/` for repository-level inspection and distribution. The external handoff directory remains the backend's deployment layout and is verified before startup.
 
 ## Frozen ML package
 
