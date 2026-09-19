@@ -1,0 +1,768 @@
+:root {
+  font-family:
+    Inter,
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
+  color: #17212b;
+  background: #f4f7f8;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, #e4f3ed 0, transparent 32%),
+    #f4f6f7;
+}
+
+.topbar {
+  height: 82px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-bottom: 1px solid #dbe2e6;
+}
+
+.brand {
+  font-size: 31px;
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.subtitle {
+  color: #65727d;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+
+.status span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status.online span {
+  background: #159447;
+  box-shadow: 0 0 10px #159447;
+}
+
+.status.offline span {
+  background: #c33;
+}
+
+main {
+  width: min(1180px, 92%);
+  margin: 0 auto;
+  padding: 42px 0 35px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 35px;
+  margin-bottom: 30px;
+}
+
+.eyebrow {
+  color: #0b8d4b;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+h1 {
+  max-width: 720px;
+  margin: 8px 0;
+  font-size: clamp(30px, 4vw, 49px);
+  line-height: 1.02;
+  letter-spacing: -2px;
+}
+
+.heroText {
+  max-width: 700px;
+  color: #68747d;
+  line-height: 1.6;
+}
+.liveMessage {
+  margin-top: 14px;
+  color: #16864b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stop {
+  border: 0;
+  border-radius: 9px;
+  padding: 14px 22px;
+  background: #b83232;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.primary {
+  border: 0;
+  border-radius: 9px;
+  padding: 14px 22px;
+  background: #118c4a;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.error {
+  padding: 13px 16px;
+  background: #fff0f0;
+  border: 1px solid #e7bcbc;
+  border-radius: 8px;
+  color: #a12c2c;
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 18px;
+}
+
+.card {
+  background: white;
+  border: 1px solid #dce3e7;
+  border-radius: 13px;
+  padding: 23px;
+  box-shadow: 0 7px 25px rgba(24, 39, 48, .05);
+}
+
+.riskCard {
+  grid-row: span 2;
+  text-align: center;
+}
+
+.cardTitle {
+  color: #68757e;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  margin-bottom: 20px;
+}
+
+.riskRing {
+  width: 190px;
+  height: 190px;
+  margin: 15px auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle, white 61%, transparent 62%),
+    conic-gradient(#0b9d59 0deg, #0b9d59 250deg, #dce5e8 250deg);
+}
+
+.riskRing strong {
+  font-size: 49px;
+}
+
+.riskRing span {
+  color: #87929a;
+}
+
+.riskLevel {
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin: 8px 0 25px;
+}
+
+.riskLevel.low {
+  color: #16834a;
+}
+
+.riskLevel.medium {
+  color: #a47500;
+}
+
+.riskLevel.high,
+.riskLevel.critical {
+  color: #c53535;
+}
+
+.metric {
+  border-top: 1px solid #e7ecee;
+  padding-top: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.evidence {
+  margin: 20px 0;
+}
+
+.evidence > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.evidence strong {
+  font-weight: 900;
+}
+
+.bar {
+  height: 7px;
+  background: #e9eef0;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.bar div {
+  height: 100%;
+  background: #15934e;
+  border-radius: inherit;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 0;
+  border-bottom: 1px solid #edf0f2;
+  font-size: 13px;
+}
+
+.infoRow:last-child {
+  border-bottom: 0;
+}
+
+.infoRow span {
+  color: #77838b;
+}
+
+.actionCard {
+  margin-top: 18px;
+  padding: 25px;
+  background: #10201a;
+  color: white;
+  border-radius: 13px;
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  align-items: center;
+}
+
+.actionCard .cardTitle {
+  color: #8fb0a1;
+  margin-bottom: 8px;
+}
+
+.actionCard h2 {
+  margin: 0 0 8px;
+}
+
+.actionCard p {
+  color: #b7c7c0;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.actions button {
+  border: 1px solid #668176;
+  background: transparent;
+  color: white;
+  padding: 10px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.integration {
+  margin-top: 18px;
+  padding: 16px 20px;
+  border: 1px solid #dce3e7;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 12px;
+}
+
+.integration div:first-child {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.integration span {
+  color: #16864b;
+  font-weight: 800;
+}
+
+.session {
+  color: #7a858c;
+}
+
+footer {
+  padding: 18px;
+  text-align: center;
+  color: #82909a;
+  font-size: 11px;
+}
+
+@media (max-width: 850px) {
+  .hero,
+  .actionCard,
+  .integration {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .riskCard {
+    grid-row: auto;
+  }
+
+  .actions {
+    justify-content: flex-start;
+  }
+}
+/* =========================================================
+   VAANIX LIVE PROCESSING PIPELINE
+   Matches SIH Slide 3:
+   INPUT → PREPARE → EVIDENCE → FUSION + RISK → SECURITY
+   ========================================================= */
+
+.pipelineCard {
+  background: #ffffff;
+  border: 1px solid #d9e2e6;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 28px rgba(24, 39, 48, 0.045);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.sectionHeader h2 {
+  margin: 5px 0 0;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+
+.sectionTag {
+  display: inline-block;
+  color: #0a8c4a;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+}
+
+.pipelineMeta {
+  color: #6e7b84;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pipeline {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pipelineStep {
+  flex: 1;
+  min-width: 150px;
+  min-height: 142px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 16px 12px;
+
+  text-align: center;
+
+  border: 1px solid #dfe6e9;
+  border-radius: 11px;
+
+  background: #f8fafb;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pipelineStep.active {
+  border-color: #70bd94;
+  background: #f1faf5;
+  box-shadow:
+    0 0 0 2px rgba(21, 147, 78, 0.06);
+}
+
+.pipelineNumber {
+  width: 29px;
+  height: 29px;
+
+  margin: 0 auto 9px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #e7eef1;
+  color: #53626c;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.pipelineStep.active .pipelineNumber {
+  background: #0f9850;
+  color: #ffffff;
+}
+
+.pipelineTitle {
+  color: #17212b;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.55px;
+}
+
+.pipelineDescription {
+  margin-top: 7px;
+
+  color: #71808a;
+
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.pipelineStatus {
+  margin-top: 10px;
+
+  color: #0b8d4b;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+}
+
+.pipelineArrow {
+  flex: 0 0 22px;
+
+  display: grid;
+  place-items: center;
+
+  color: #98a6ae;
+
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* SYSTEM LAYER */
+
+.systemLayer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 8px 18px;
+
+  margin-top: 19px;
+  padding-top: 15px;
+
+  border-top: 1px dashed #d5dfe3;
+
+  color: #71808a;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.55px;
+}
+
+.systemLayerLabel {
+  color: #53636d;
+  font-weight: 900;
+}
+
+/* LIVE MESSAGE */
+
+.liveMessage {
+  margin-top: 15px;
+
+  color: #68757e;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.liveMessage.active {
+  color: #0b914b;
+}
+
+.liveMessage span {
+  margin-right: 7px;
+}
+
+/* STOP BUTTON */
+
+.stop {
+  border: 0;
+  border-radius: 9px;
+
+  padding: 14px 22px;
+
+  background: #bd3535;
+  color: white;
+
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* ===== STOP ===== */
+
+.stop {
+  border: 0;
+  border-radius: 9px;
+  padding: 14px 22px;
+  background: #bd3535;
+  color: white;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* ===== EXTRA DATA ===== */
+
+.smallInfo {
+  margin-top: 17px;
+  padding-top: 14px;
+  border-top: 1px solid #edf0f2;
+  color: #78848c;
+  font-size: 12px;
+}
+
+.smallInfo strong {
+  color: #18232c;
+}
+
+.activityCard {
+  background: #101b17;
+  color: white;
+  border-radius: 13px;
+  padding: 22px;
+  margin-top: 18px;
+}
+
+.activityCard .sectionTag {
+  color: #7ed5a2;
+}
+
+.activityCard .sectionHeader h2 {
+  color: white;
+}
+
+.observed {
+  color: #8ca097;
+  font-size: 11px;
+}
+
+.activityList {
+  border-top: 1px solid #273a32;
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 2px;
+  border-bottom: 1px solid #20332b;
+  font-family: Consolas, monospace;
+  font-size: 11px;
+}
+
+.activityDot {
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  border-radius: 50%;
+  background: #42b975;
+}
+
+.activityDot.warn {
+  background: #e2b54d;
+}
+
+.activityDot.info {
+  background: #69a9df;
+}
+
+.activityTime {
+  color: #7f978c;
+  min-width: 72px;
+}
+
+.emptyActivity {
+  padding: 25px 0;
+  color: #84968e;
+  font-size: 12px;
+}
+
+.integration {
+  margin-top: 18px;
+}
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 950px) {
+  .pipeline {
+    justify-content: flex-start;
+  }
+
+  .pipelineArrow {
+    flex: 0 0 auto;
+  }
+}
+/* ===== FINAL VAANIX TYPOGRAPHY POLISH ===== */
+
+body,
+button,
+input,
+textarea,
+select {
+  font-family:
+    Inter,
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+/* Main readable text */
+p,
+.metric,
+.infoRow,
+.evidence,
+.pipelineDescription {
+  font-weight: 500;
+}
+
+/* Labels */
+.cardTitle,
+.sectionTag,
+.pipelineTitle,
+.systemLayer,
+.status,
+.pipelineStatus {
+  font-weight: 800;
+}
+
+/* Values */
+.metric strong,
+.infoRow strong,
+.evidence strong {
+  font-weight: 750;
+}
+
+/* Main headings */
+h1 {
+  font-weight: 800;
+  letter-spacing: -1.2px;
+}
+
+h2 {
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+/* Brand */
+.brand {
+  font-weight: 850;
+  letter-spacing: -1px;
+}
+
+/* Buttons */
+button {
+  font-weight: 800;
+  letter-spacing: 0.15px;
+}
+
+/* Pipeline numbers */
+.pipelineNumber {
+  font-weight: 850;
+}
+
+/* Activity log */
+.activity {
+  font-weight: 600;
+}

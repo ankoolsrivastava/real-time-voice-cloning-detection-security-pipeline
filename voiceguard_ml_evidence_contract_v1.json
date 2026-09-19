@@ -1,0 +1,198 @@
+{
+  "contract_version": "voiceguard_ml_evidence_contract_v1",
+  "status": "integration_ready_contract",
+  "purpose": "Stable ML-to-system interface for VoiceGuard. V2 remains the primary acoustic detector; prosody is secondary evidence; speaker consistency is optional/unavailable unless a trusted reference exists; risk is the final ML evidence-layer output.",
+
+  "input_contract": {
+    "audio": {
+      "format": "PCM audio accepted by production inference wrapper",
+      "sample_rate_hz": 16000,
+      "channels": 1,
+      "dtype": "float32",
+      "max_window_duration_sec": 10.0,
+      "preprocessing": "VoiceGuardAudioPreprocessor: mono 16 kHz, peak normalization, pad/truncate to 10 s"
+    },
+
+    "stream_context": {
+      "window_id": "string",
+      "timestamp_start_ms": "integer",
+      "timestamp_end_ms": "integer",
+      "sequence_id": "integer",
+
+      "quality_context": {
+        "optional": true,
+        "fields": {
+          "packet_loss_ratio": "optional float [0,1]",
+          "jitter_ms": "optional non-negative float",
+          "codec_degradation_score": "optional float [0,1]"
+        },
+        "description": "Optional stream/network/channel quality metadata. When supplied, these fields are passed to the audio quality interface and affect evidence confidence, not spoof evidence."
+      }
+    },
+
+    "speaker_reference": {
+      "optional": true,
+      "required_for_consistency": false,
+      "currently_used": false,
+      "description": "Reserved trusted historical enrollment/reference representation. The current production ML layer does not perform speaker-consistency inference; without a trusted reference, speaker consistency remains UNAVAILABLE."
+    }
+  },
+
+  "output_contract": {
+    "schema": {
+      "model_version": "string",
+      "window_id": "string",
+      "sequence_id": "integer",
+      "timestamp_start_ms": "integer",
+      "timestamp_end_ms": "integer",
+
+      "spoof_probability": "float [0,1]",
+      "threshold": "float [0,1]",
+      "primary_decision": "BONAFIDE | SPOOF",
+
+      "prosody": {
+        "available": "boolean",
+        "evidence": "float [0,1] or null",
+        "reliability": "float [0,1] or null",
+        "status": "AVAILABLE | UNRELIABLE | ERROR"
+      },
+
+      "speaker_consistency": {
+        "available": "boolean",
+        "similarity": "float [-1,1] or null",
+        "evidence": "float [0,1] or null",
+        "status": "MATCH | MISMATCH | UNAVAILABLE | UNRELIABLE | ERROR"
+      },
+
+      "audio_quality": {
+        "quality_score": "float [0,1]",
+        "confidence_multiplier": "float [0,1]",
+        "status": "GOOD | DEGRADED | POOR | INVALID"
+      },
+
+      "evidence_confidence": "float [0,1]",
+
+      "risk": {
+        "risk_score": "float [0,100]",
+        "risk_level": "LOW | MEDIUM | HIGH | CRITICAL",
+        "adjusted_spoof_probability": "float [0,1]",
+        "primary_contribution": "float [0,100]",
+        "prosody_contribution": "float [0,100]",
+        "status": "USABLE | LOW_CONFIDENCE",
+        "reasons": "array[string]"
+      },
+
+      "notes": "array[string]"
+    }
+  },
+
+  "decision_semantics": {
+    "spoof_probability": "Frozen V2 neural detector probability for class 1 (spoof).",
+    "threshold": "Frozen validation-selected production candidate threshold: 0.25.",
+    "primary_decision": "spoof_probability >= threshold => SPOOF; otherwise BONAFIDE.",
+    "prosody_evidence": "Secondary evidence. It must not be interpreted as an independent final detector.",
+    "speaker_consistency": "Reserved optional cross-session evidence. Current production implementation does not use speaker consistency and reports it as UNAVAILABLE.",
+    "quality": "Poor/degraded quality lowers confidence in evidence. It must not automatically increase spoof evidence.",
+    "risk": "Risk engine output combines the frozen V2 primary evidence with deployable prosody evidence while attenuating evidence according to quality and evidence confidence."
+  },
+
+  "frozen_model": {
+    "version": "voiceguard_v2_epoch8",
+    "checkpoint": "D:\\VoiceGaurd\\experiments\\reverb_v2\\models\\best_model.pt",
+    "checkpoint_sha256": "ad872bac0f754e554ede13507d86b2ed6396e3e4cbd7973935559c5c292d934b",
+    "threshold_validation_selected": 0.25,
+    "class_mapping": {
+      "0": "bonafide",
+      "1": "spoof"
+    }
+  },
+
+  "feature_contract": {
+    "type": "log_mel",
+    "n_mels": 64,
+    "n_fft": 400,
+    "hop_length": 160,
+    "win_length": 400,
+    "fmin_hz": 20,
+    "fmax_hz": 8000,
+    "power_to_db_reference": "max"
+  },
+
+  "quality_interface": {
+    "quality_score_definition": "Normalized 0..1 estimate of whether the current audio window is sufficiently reliable for model evidence.",
+    "required_checks": [
+      "signal presence / non-silence",
+      "clipping / saturation",
+      "effective duration",
+      "energy stability",
+      "optional SNR estimate when reference/noise estimate is available",
+      "stream integrity indicators such as packet loss, jitter, and codec/compression degradation when available"
+    ],
+    "quality_states": {
+      "GOOD": "Evidence can be used normally.",
+      "DEGRADED": "Evidence may be used with reduced confidence.",
+      "POOR": "Do not treat the window as strong evidence; request/accumulate a better window.",
+      "INVALID": "No valid inference/evidence should be emitted."
+    },
+    "principle": "Quality degradation reduces evidence confidence rather than becoming spoof evidence.",
+    "streaming_policy": "Accumulate evidence from reliable windows; do not let a single corrupted/low-quality window dominate the decision."
+  },
+
+  "integration_notes": {
+    "speaker_consistency": "UNAVAILABLE in the current production ML layer unless a future explicitly approved implementation adds trusted-reference comparison.",
+    "streaming": "Microphone, call, transport, buffering, windowing, session management, and temporal accumulation orchestration remain outside this ML predictor.",
+    "backend_responsibility": "The backend supplies validated audio windows and stream context, calls the predictor, consumes the returned contract, and owns API/security/application actions.",
+    "ml_responsibility": "The ML layer owns preprocessing, feature extraction, frozen V2 inference, prosody evidence, audio-quality interpretation, evidence fusion, and risk calculation.",
+    "model_change_policy": "Any checkpoint, threshold, feature-contract, output-schema, or evidence-weight change requires an explicit contract/version review before backend integration."
+  },
+
+  "example": {
+    "model_version": "voiceguard_v2_epoch8",
+    "window_id": "call_00017_w0042",
+    "sequence_id": 42,
+    "timestamp_start_ms": 41000,
+    "timestamp_end_ms": 51000,
+
+    "spoof_probability": 0.93,
+    "threshold": 0.25,
+    "primary_decision": "SPOOF",
+
+    "prosody": {
+      "available": true,
+      "evidence": 0.71,
+      "reliability": 0.86,
+      "status": "AVAILABLE"
+    },
+
+    "speaker_consistency": {
+      "available": false,
+      "similarity": null,
+      "evidence": null,
+      "status": "UNAVAILABLE"
+    },
+
+    "audio_quality": {
+      "quality_score": 0.88,
+      "confidence_multiplier": 0.88,
+      "status": "GOOD"
+    },
+
+    "evidence_confidence": 0.86,
+
+    "risk": {
+      "risk_score": 83.4,
+      "risk_level": "HIGH",
+      "adjusted_spoof_probability": 0.87,
+      "primary_contribution": 75.0,
+      "prosody_contribution": 8.4,
+      "status": "USABLE",
+      "reasons": [
+        "Example only; values are illustrative, not benchmark predictions."
+      ]
+    },
+
+    "notes": [
+      "Example only; values are illustrative, not benchmark predictions."
+    ]
+  }
+}

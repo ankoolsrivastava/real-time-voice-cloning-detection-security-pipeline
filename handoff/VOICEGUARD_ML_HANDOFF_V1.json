@@ -1,0 +1,185 @@
+{
+  "handoff_version": "voiceguard_ml_handoff_v1",
+  "status": "READY_FOR_BACKEND_FRONTEND_HANDOFF",
+  "scope": "Pre-SIH ML layer handoff; frozen detector plus validated evidence/quality/risk interfaces",
+  "frozen_detector": {
+    "model_version": "voiceguard_v2_epoch8",
+    "checkpoint": "D:\\VoiceGaurd\\experiments\\reverb_v2\\models\\best_model.pt",
+    "checkpoint_sha256": "ad872bac0f754e554ede13507d86b2ed6396e3e4cbd7973935559c5c292d934b",
+    "best_epoch": 8,
+    "parameter_count": 1143331,
+    "threshold": 0.25,
+    "class_mapping": {
+      "0": "bonafide",
+      "1": "spoof"
+    }
+  },
+  "preprocessing": {
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "dtype": "float32",
+    "peak_normalization": true,
+    "max_duration_sec": 10.0,
+    "pad_or_truncate": true
+  },
+  "features": {
+    "type": "log_mel_spectrogram",
+    "n_mels": 64,
+    "n_fft": 400,
+    "hop_length": 160,
+    "win_length": 400,
+    "fmin_hz": 20,
+    "fmax_hz": 8000,
+    "power_to_db_reference": "max"
+  },
+  "architecture": [
+    "CNN: 1 -> 32 -> 64 -> 128 -> 128",
+    "frequency-adaptive average pooling",
+    "2-layer BiGRU, hidden size 128",
+    "temporal attention",
+    "2-class classifier"
+  ],
+  "validated_evaluations": {
+    "clean_test_threshold_0_5": {
+      "accuracy": 0.9776,
+      "precision": 0.9498,
+      "recall": 0.9956,
+      "f1": 0.9722,
+      "roc_auc": 0.9969,
+      "eer": 0.0198
+    },
+    "common_10k_robustness_threshold_0_5": {
+      "accuracy": 0.9566,
+      "precision": 0.965,
+      "recall": 0.9476,
+      "f1": 0.9562
+    },
+    "frozen_threshold_validation_selection": {
+      "threshold": 0.25,
+      "accuracy": 0.957,
+      "precision": 0.9368,
+      "recall": 0.9724,
+      "f1": 0.9543,
+      "balanced_accuracy": 0.9581
+    },
+    "frozen_threshold_common_10k": {
+      "threshold": 0.25,
+      "accuracy": 0.9634,
+      "precision": 0.9489,
+      "recall": 0.9796,
+      "f1": 0.964,
+      "balanced_accuracy": 0.9634
+    },
+    "frozen_threshold_dual_rir_676": {
+      "threshold": 0.25,
+      "accuracy": 0.929,
+      "precision": 0.922,
+      "recall": 0.9382,
+      "f1": 0.93,
+      "balanced_accuracy": 0.9289
+    }
+  },
+  "production_benchmark": {
+    "e2e_mean_ms": 13.06,
+    "e2e_median_ms": 12.95,
+    "e2e_range_ms": [
+      11.17,
+      16.48
+    ],
+    "throughput_files_per_sec": 76.55,
+    "model_only_median_ms": 3.46,
+    "peak_gpu_memory_mb": 61.89,
+    "qualification": "offline/file inference benchmark; not end-to-end streaming transport latency"
+  },
+  "evidence_layer": {
+    "audio_quality": {
+      "status": "implemented_integrated_validated",
+      "test_result": "AUDIO QUALITY INTERFACE TESTS PASS",
+      "rule": "quality/network degradation lowers confidence and is never spoof evidence"
+    },
+    "prosody": {
+      "status": "implemented_and_diagnostically_validated",
+      "deployment_status": "not_active_fusion",
+      "reason": "validation-fitted scorer was not packaged as a deployable calibrated artifact"
+    },
+    "speaker_consistency": {
+      "status": "evaluated_and_rejected",
+      "deployment_status": "inactive",
+      "reason": "MFCC-statistics baseline showed insufficient discrimination"
+    },
+    "risk_engine": {
+      "status": "implemented_integrated_validated",
+      "test_result": "DYNAMIC RISK ENGINE TESTS PASS; 6/6",
+      "risk_range": "0-100",
+      "bands": {
+        "LOW": "<30",
+        "MEDIUM": "30-69.9999",
+        "HIGH": "70-89.9999",
+        "CRITICAL": ">=90"
+      },
+      "note": "operational risk score, not a calibrated probability"
+    },
+    "integration_smoke_test": {
+      "status": "PASS",
+      "test_result": "VOICEGUARD V2 EVIDENCE INTEGRATION TEST PASS",
+      "protected_test_used": false,
+      "threshold_tuning_performed": false,
+      "synthetic_dummy_audio_used": false,
+      "prosody_fusion": "not_claimed; diagnostic-only in this integration test"
+    }
+  },
+  "dataset": {
+    "master_manifest": "D:\\VoiceGaurd\\master_v1\\metadata\\master_dataset_v1.csv",
+    "rows": 17511,
+    "bonafide": 9511,
+    "spoof": 8000,
+    "hindi": 9657,
+    "marathi": 7854,
+    "train": 13214,
+    "validation": 3138,
+    "test": 1159,
+    "status": "locked"
+  },
+  "backend_frontend_handoff": {
+    "backend_owner": [
+      "live microphone/call input integration",
+      "chunking/circular buffering",
+      "packet-loss/jitter telemetry ingestion",
+      "streaming inference API",
+      "security actions: alert/MFA/callback/escalation",
+      "privacy/retention enforcement",
+      "integration with risk output"
+    ],
+    "frontend_owner": [
+      "live detection UI",
+      "risk score/status display",
+      "alerts and verification UX",
+      "backend API integration"
+    ],
+    "ml_contract_for_backend": {
+      "input": "audio window accepted by the exact preprocessing contract",
+      "output": [
+        "spoof_probability",
+        "threshold",
+        "primary_decision",
+        "audio_quality",
+        "evidence_confidence",
+        "risk_score",
+        "risk_level",
+        "status",
+        "reasons"
+      ]
+    }
+  },
+  "remaining_ml_validation_extensions": [
+    "Indian English validation",
+    "unseen/true cloned-voice generalization evaluation"
+  ],
+  "explicit_non_claims": [
+    "No claim of Indian English validation yet",
+    "No claim of unseen cloning-generator validation yet",
+    "No claim that speaker consistency is production-ready",
+    "No claim that 0-100 risk is a calibrated probability",
+    "No claim that 13.06 ms is full streaming end-to-end latency"
+  ]
+}
