@@ -1,15 +1,17 @@
-﻿from pathlib import Path
+from pathlib import Path
 import json
 import os
+
 import torch
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = BACKEND_ROOT.parent
 
 ML_HANDOFF_ROOT = Path(
     os.getenv(
         "VOICEGUARD_ML_HANDOFF_ROOT",
-        r"D:\VoiceGaurd\ml_handoff"
+        str(PROJECT_ROOT / "ml_handoff"),
     )
 ).resolve()
 
@@ -37,15 +39,12 @@ SPOOF_THRESHOLD = 0.25
 
 DEVICE = os.getenv(
     "VOICEGUARD_DEVICE",
-    "cuda" if torch.cuda.is_available() else "cpu"
+    "cuda" if torch.cuda.is_available() else "cpu",
 )
 
 
 def load_prosody_config() -> dict:
-    with PROSODY_CONFIG_PATH.open(
-        "r",
-        encoding="utf-8"
-    ) as f:
+    with PROSODY_CONFIG_PATH.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -71,6 +70,5 @@ def validate_paths() -> None:
             for name, path in missing.items()
         )
         raise FileNotFoundError(
-            "VoiceGuard ML runtime prerequisites are missing:\n"
-            + details
+            "VoiceGuard ML runtime prerequisites are missing:\n" + details
         )
