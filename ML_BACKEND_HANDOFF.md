@@ -1,4 +1,4 @@
-# VoiceGuard ML → Backend Handoff V1
+# V2 ML → Backend Integration Handoff
 
 **Status:** Integration Ready
 **ML model:** `voiceguard_v2_epoch8`
@@ -118,13 +118,7 @@ The backend must not independently reproduce or modify the ML fusion calculation
 
 ## 4. Public ML Interface
 
-The backend should integrate through the production predictor:
-
-```python
-from voiceguard_ml_predictor_v1 import VoiceGuardMLPredictor
-
-predictor = VoiceGuardMLPredictor()
-```
+The repository contains `voiceguard_ml_predictor_v1.py` as the standalone ML-facing reference interface. The integrated FastAPI backend uses `backend/app/ml/runtime.py`, which loads the same frozen model, prosody scorer, quality interface, and risk engine from the external `ml_handoff/` package. Both paths are required to preserve the same ML contract.
 
 The public prediction method is:
 
@@ -141,7 +135,7 @@ predictor.predict(
 )
 ```
 
-The backend should call this interface rather than directly invoking the lower-level V2 inference implementation.
+The backend runtime should not duplicate model weights or training artifacts. It loads the frozen runtime modules from the external handoff package and keeps transport/session orchestration in the backend.
 
 ---
 
@@ -746,9 +740,9 @@ UNAVAILABLE
 
 unless a future approved trusted-reference implementation is added.
 
-### Indian English generalization
+### Current language scope
 
-Indian English evaluation remains a planned validation extension.
+The current frozen project scope is Hindi and Marathi. Indian English is not part of the active target or evaluation scope.
 
 ### Unseen cloning/generalization
 
