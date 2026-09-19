@@ -1,0 +1,51 @@
+{
+  "handoff_version": "VOICEGUARD_FINAL_ML_HANDOFF_V2",
+  "status": "integration_ready",
+  "model": {
+    "version": "voiceguard_v2_epoch8",
+    "checkpoint": "models/best_model.pt",
+    "sha256": "ad872bac0f754e554ede13507d86b2ed6396e3e4cbd7973935559c5c292d934b",
+    "threshold": 0.25,
+    "sample_rate_hz": 16000,
+    "channels": 1,
+    "window_samples": 160000,
+    "window_seconds": 10.0,
+    "class_mapping": {
+      "0": "bonafide",
+      "1": "spoof"
+    }
+  },
+  "prosody": {
+    "scorer": "prosody/prosody_scorer_v1.pkl",
+    "config": "prosody/PROSODY_FUSION_CONFIG_V1.json",
+    "role": "secondary_evidence",
+    "primary_weight": 0.83,
+    "prosody_weight": 0.17
+  },
+  "runtime_scripts": [
+    "runtime/scripts/audio_preprocessor.py",
+    "runtime/scripts/feature_extractor.py",
+    "runtime/scripts/model.py",
+    "runtime/scripts/voiceguard_prosody_fusion_v1.py",
+    "runtime/scripts/voiceguard_audio_quality_interface_v1.py",
+    "runtime/scripts/voiceguard_dynamic_risk_engine_v2.py"
+  ],
+  "contract": {
+    "repository_path": "voiceguard_ml_evidence_contract_v1.json",
+    "version": "voiceguard_ml_evidence_contract_v1"
+  },
+  "scope": {
+    "languages": [
+      "Hindi",
+      "Marathi"
+    ],
+    "speaker_consistency": "UNAVAILABLE",
+    "protected_test_required_at_runtime": false
+  },
+  "artifact_policy": {
+    "model_weights_committed_to_git": false,
+    "audio_datasets_committed_to_git": false,
+    "generated_outputs_committed_to_git": false,
+    "verification_script": "VERIFY_VOICEGUARD_FINAL_ML_HANDOFF_V2.ps1"
+  }
+}
