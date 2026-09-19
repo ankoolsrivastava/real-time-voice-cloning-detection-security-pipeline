@@ -722,13 +722,11 @@ The following are intentionally not represented as completed:
 
 ### Streaming integration
 
-The ML predictor is ready for backend invocation, but actual microphone/call streaming integration remains a system/backend task.
+The repository contains the backend streaming path: `backend/live_mic_client.py` captures 16 kHz microphone chunks and sends them through the WebSocket API, while the backend constructs fixed 10-second windows before inference. The standalone ML predictor itself remains window-based and does not capture audio or manage transport.
 
 ### Temporal stream hookup
 
-The predictor returns per-window evidence.
-
-System-level temporal accumulation across windows remains part of the backend/application integration.
+Temporal accumulation is implemented by the backend session layer through `TemporalAccumulator`, which tracks current, accumulated, maximum, trend, and persistent high/critical risk across processed windows.
 
 ### Speaker consistency
 
@@ -739,10 +737,6 @@ UNAVAILABLE
 ```
 
 unless a future approved trusted-reference implementation is added.
-
-### Current language scope
-
-The current frozen project scope is Hindi and Marathi. Indian English is not part of the active target or evaluation scope.
 
 ### Unseen cloning/generalization
 
@@ -841,13 +835,11 @@ Evidence fusion              READY
 Dynamic risk engine          READY
 ML evidence contract         READY
 Backend handoff              READY
-
-Microphone/call integration  BACKEND TASK
-Temporal stream hookup       BACKEND TASK
-Security actions             BACKEND TASK
+Backend microphone/WebSocket READY
+Backend temporal tracking   READY
+Backend security policy     READY
 
 Speaker consistency          UNAVAILABLE
-Indian English validation    PENDING
 Unseen cloning evaluation    PENDING
 ```
 
