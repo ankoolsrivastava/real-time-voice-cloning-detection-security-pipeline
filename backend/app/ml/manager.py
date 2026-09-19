@@ -42,8 +42,8 @@ class MultiModelManager:
                     MLModelOutput(
                         model_id=connector.model_id,
                         model_version=connector.model_version,
-                        spoof_probability=0.5,
-                        bonafide_probability=0.5,
+                        spoof_probability=None,
+                        bonafide_probability=None,
                         confidence=0.0,
                         latency_ms=0.0,
                         status="error",
