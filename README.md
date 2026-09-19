@@ -187,10 +187,10 @@ The evidence is converted into a normalized **0–100 impersonation risk score**
 
 | Score | Level |
 |---:|---|
-| 0–24 | LOW |
-| 25–49 | MEDIUM |
-| 50–74 | HIGH |
-| 75–100 | CRITICAL |
+| 0–29 | LOW |
+| 30–69 | MEDIUM |
+| 70–89 | HIGH |
+| 90–100 | CRITICAL |
 
 | Risk condition | Example action |
 |---|---|
@@ -288,8 +288,6 @@ real-time-voice-cloning-detection-security-pipeline/
 │   └── package-lock.json
 ├── scripts/                  # Training, evaluation and ML utilities
 ├── 00_PROJECT_DOCS/          # Dataset/project reference material
-├── handoff/                  # ML/backend handoff utilities
-├── AGENTS.md                 # Project engineering conventions
 ├── ML_BACKEND_HANDOFF.md     # ML/backend integration reference
 └── README.md
 ```
@@ -330,21 +328,23 @@ The Python environment and dependency versions used by the backend are documente
 
 ## Backend
 
-NaN
-NaN
-NaN
-NaN
-NaN
+The backend expects the frozen ML artifacts to exist outside the repository. Set `VOICEGUARD_ML_HANDOFF_ROOT` to the local ML handoff directory before starting the API.
 
-The ML runtime requires the corresponding local model and supporting artifacts. These files are intentionally not included in the public repository.
+```powershell
+cd backend
+..\ml_env\Scripts\python.exe -m pip install -r requirements.txt
+..\ml_env\Scripts\python.exe -m uvicorn app.main:app --reload
+```
 
 ## Frontend
 
-NaN
-NaN
-NaN
-NaN
-NaN
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend defaults to `http://127.0.0.1:8000/api`. Set `VITE_API_BASE_URL` if the backend is hosted elsewhere.
 
 ---
 
@@ -352,10 +352,12 @@ NaN
 
 Backend tests cover API behavior, audio buffering/window construction, ML connectors, and core integration.
 
-NaN
-NaN
-NaN
-NaN
+```powershell
+cd backend
+..\ml_env\Scripts\python.exe -m pytest
+```
+
+The public repository does not include the locked audio datasets or frozen model artifacts, so full inference tests require the corresponding local ML handoff.
 
 ---
 
